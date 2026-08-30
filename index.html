@@ -1,0 +1,1935 @@
+
+<html lang="fr" class="dark"><head>
+  <meta charset="UTF-8">
+
+<meta name="hosting-provider" content="Netlify">
+<meta name="netlify-deploy" content="https://netlify.new/?utm_campaign=ai-legible&utm_source=meta&utm_medium=referral&utm_id=ec2e4a45-444a-4075-bb14-511f8bef67b9">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>SharowChat</title>
+ 
+  <!-- Police Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+ 
+  <!-- Lucide Icons -->
+  <script src="https://apis.google.com/_/scs/abc-static/_/js/k=gapi.lb.fr.u1YzuBbBpqg.O/m=gapi_iframes/rt=j/sv=1/d=1/ed=1/rs=AHpOoo8duhQcXZMuEcPyUghpXlpXTVvDfA/cb=gapi.loaded_0?le=scs" async=""></script><script src="https://unpkg.com/lucide@latest"></script>
+ 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+ 
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #09090b;
+      --surface-card: #121215;
+      --surface-hover: #18181b;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.18);
+      --text: #ffffff;
+      --text-muted: #8e8e93;
+      --accent: #ffffff;
+      --accent-text: #000000;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --busy: #ef4444;
+      --discord: #5865F2;
+      --x-blue: #1d9bf0;
+      --radius-full: 9999px;
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --blur: blur(20px) saturate(180%);
+    }
+ 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+ 
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--surface-hover); border-radius: var(--radius-full); border: 1px solid var(--surface); }
+ 
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      height: 100dvh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+ 
+    .hidden { display: none !important; }
+ 
+    .glass {
+      background: rgba(18, 18, 21, 0.40);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--border);
+    }
+ 
+    #authView {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+ 
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+      padding: 32px;
+      border-radius: var(--radius-lg);
+      text-align: center;
+    }
+ 
+    .auth-title { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 6px; }
+    .auth-subtitle { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 24px; }
+ 
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 18px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+ 
+    .btn-primary { background: var(--accent); color: var(--accent-text); border-radius: var(--radius-full); }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-secondary { background: var(--surface-hover); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-full); }
+    .btn-secondary:hover { background: var(--surface-card); }
+ 
+    .btn-icon {
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border-radius: var(--radius-full);
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-icon:hover { background: var(--surface-hover); border-color: var(--border-strong); }
+ 
+    .btn-send-round {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 0;
+    }
+ 
+    .input-field {
+      width: 100%;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      color: var(--text);
+      outline: none;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      transition: border-color 0.2s;
+    }
+    .input-field:focus { border-color: var(--border-strong); }
+ 
+    .app-header {
+      height: 58px;
+      padding: 0 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+      flex-shrink: 0;
+    }
+ 
+    .brand { font-weight: 700; font-size: 1.15rem; display: flex; align-items: center; gap: 8px; }
+ 
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--surface-card);
+      padding: 3px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border);
+    }
+ 
+    .nav-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      transition: all 0.2s;
+    }
+    .nav-tab.active { background: var(--accent); color: var(--accent-text); }
+ 
+    .user-profile-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-full);
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+    }
+ 
+    .app-body { flex: 1; display: flex; overflow: hidden; position: relative; width: 100%; }
+ 
+    .contacts-sidebar {
+      width: 320px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+    }
+ 
+    .sidebar-search { padding: 12px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: center; }
+    .contacts-list { flex: 1; overflow-y: auto; padding: 6px; }
+ 
+    .contact-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-bottom: 2px;
+    }
+    .contact-card:hover, .contact-card.active { background: var(--surface-hover); }
+ 
+    .avatar-wrapper { position: relative; flex-shrink: 0; }
+    .avatar-box {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      background-size: cover;
+      background-position: center;
+    }
+ 
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--success); position: absolute; bottom: 0; right: 0; border: 2px solid var(--surface); }
+    .status-dot.busy { background: var(--busy); }
+    .status-dot.offline { background: var(--text-muted); }
+ 
+    .contact-info { flex: 1; min-width: 0; }
+    .contact-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .contact-tag { font-size: 0.75rem; color: var(--text-muted); }
+ 
+    .main-stage { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; height: 100%; overflow: hidden; }
+    .chat-container { display: flex; flex-direction: column; height: 100%; width: 100%; overflow: hidden; }
+ 
+    .chat-header {
+      height: 58px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+ 
+    .chat-header-info { display: flex; align-items: center; gap: 10px; }
+ 
+    .messages-viewport {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 12px 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+ 
+    .message-container { position: relative; display: flex; align-items: center; width: fit-content; max-width: 78%; }
+    .message-container.sent { align-self: flex-end; flex-direction: row; padding-right: 0; }
+    .message-container.received { align-self: flex-start; }
+ 
+    .msg-actions { position: absolute; top: 50%; transform: translateY(-50%); opacity: 0; transition: opacity 0.2s; display: flex; gap: 4px; align-items: center; z-index: 2; }
+    .message-container:hover .msg-actions { opacity: 1; }
+    .message-container.sent .msg-actions { right: calc(100% + 6px); }
+    .message-container.received .msg-actions { left: calc(100% + 6px); }
+     
+    .msg-action-btn { 
+      background: var(--surface-card); border: 1px solid var(--border); 
+      padding: 4px; border-radius: 50%; color: var(--text-muted); cursor: pointer; 
+      display: flex; align-items: center; justify-content: center;
+    }
+    .msg-action-btn:hover { color: var(--text); background: var(--surface-hover); }
+    .msg-action-btn.delete:hover { color: var(--danger); border-color: var(--danger); }
+ 
+    .message-bubble { padding: 8px 12px; border-radius: 14px; font-size: 0.9rem; line-height: 1.4; word-break: break-word; }
+    .message-time { display: block; margin-top: 4px; font-size: 0.68rem; line-height: 1; opacity: 0.58; text-align: right; white-space: nowrap; }
+    .message-container.sent .message-time { color: rgba(0,0,0,0.62); }
+    .message-container.received .message-time { color: var(--text-muted); }
+    .xplore-post-time { display: block; margin-top: 2px; color: var(--text-muted); font-size: 0.68rem; }
+    .reply-item { display: flex; gap: 8px; align-items: flex-start; }
+    .reply-item .reply-body { flex: 1; min-width: 0; }
+    .reply-item .reply-header { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
+    .reply-item .reply-text { font-size: 0.82rem; line-height: 1.35; word-break: break-word; }
+    .reply-item .reply-time { display: block; margin-top: 3px; color: var(--text-muted); font-size: 0.66rem; }
+    .emoji-fallback { grid-column: span 2; display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; padding-top: 4px; }
+    .emoji-fallback button { width: 100%; aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-card); color: var(--text); font-size: 1.35rem; cursor: pointer; }
+    .emoji-fallback button:hover { background: var(--surface-hover); }
+    .message-container.sent .message-bubble { background: var(--accent); color: var(--accent-text); border-bottom-right-radius: 4px; }
+    .message-container.received .message-bubble { background: var(--surface-card); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
+ 
+    .message-bubble a { color: #3b82f6; text-decoration: underline; font-weight: 500; }
+    .message-container.sent .message-bubble a { color: #1d4ed8; }
+ 
+    .audio-bubble { display: flex; align-items: center; gap: 8px; padding: 6px 12px !important; }
+    .audio-bubble audio { height: 32px; outline: none; border-radius: var(--radius-full); }
+ 
+    .chat-media-img { max-width: 240px; border-radius: 10px; margin-top: 2px; border: 1px solid var(--border); }
+ 
+    .chat-input-bar { 
+      padding: 8px 12px; 
+      background: var(--surface); 
+      border-top: 1px solid var(--border); 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+      flex-shrink: 0;
+      width: 100%;
+      box-sizing: border-box;
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+    .chat-input-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-full);
+      padding: 0 12px;
+      min-width: 0;
+    }
+    .chat-input-wrapper input { 
+      flex: 1; 
+      background: transparent; 
+      border: none; 
+      padding: 8px 0; 
+      color: var(--text); 
+      outline: none; 
+      font-size: 0.9rem; 
+      width: 100%;
+      min-width: 0;
+    }
+ 
+    .xplore-container { flex: 1; overflow-y: auto; padding: 16px; max-width: 600px; margin: 0 auto; width: 100%; position: relative; }
+    .xplore-welcome { padding: 14px; border-radius: var(--radius-lg); margin-bottom: 14px; text-align: center; }
+     
+    .xplore-card { padding: 12px; border-bottom: 1px solid var(--border); background: var(--surface); margin-bottom: 1px; }
+    .xplore-post-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .xplore-post-actions { display: flex; align-items: center; gap: 14px; margin-top: 10px; color: var(--text-muted); }
+    .xplore-action-btn { display: flex; align-items: center; gap: 4px; background: transparent; border: none; color: inherit; cursor: pointer; font-size: 0.8rem; transition: color 0.2s; }
+    .xplore-action-btn:hover { color: var(--x-blue); }
+    .xplore-action-btn.liked { color: var(--danger); }
+     
+    .fab-center { 
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; 
+      box-shadow: 0 6px 24px rgba(255,255,255,0.2); 
+      background: linear-gradient(135deg, var(--accent) 0%, #d1d5db 100%);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .fab-center:hover { transform: translateX(-50%) scale(1.05); }
+ 
+    .settings-container { flex: 1; overflow-y: auto; padding: 16px; max-width: 580px; margin: 0 auto; width: 100%; }
+    .settings-group { margin-bottom: 18px; word-break: break-word; }
+    .settings-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+ 
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: var(--blur);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-box { width: 100%; max-width: 400px; padding: 24px; border-radius: var(--radius-lg); }
+    .users-fullscreen-modal { padding: 0; align-items: stretch; justify-content: stretch; }
+    .users-fullscreen-modal .modal-box { width: 100%; max-width: none; height: 100%; min-height: 100%; border-radius: 0; padding: 16px; display: flex; flex-direction: column; }
+    .users-fullscreen-list { flex: 1; overflow-y: auto; min-height: 0; margin-top: 8px; padding-bottom: 10px; }
+ 
+    .invitation-blur-card {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 999;
+      width: 90%;
+      max-width: 340px;
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      background: rgba(18, 18, 21, 0.8);
+      backdrop-filter: blur(25px) saturate(200%);
+      -webkit-backdrop-filter: blur(25px) saturate(200%);
+      border: 1px solid var(--border-strong);
+      text-align: center;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+    }
+ 
+    .invitation-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+ 
+    .btn-circle-action {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      font-size: 1.1rem;
+      transition: transform 0.2s;
+    }
+    .btn-circle-action:hover { transform: scale(1.1); }
+    .btn-accept { background: var(--success); }
+    .btn-decline { background: var(--danger); }
+ 
+    .search-highlight { color: var(--discord); font-weight: bold; background: rgba(88, 101, 242, 0.2); border-radius: 4px; padding: 0 2px; }
+ 
+    .xplore-replies-container {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .reply-item {
+      font-size: 0.82rem;
+      background: var(--surface-card);
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      margin-bottom: 6px;
+      border: 1px solid var(--border);
+    }
+ 
+    @media (max-width: 768px) {
+      .app-body { display: block; }
+      .contacts-sidebar, .main-stage { width: 100%; height: 100%; position: absolute; inset: 0; z-index: 20; background: var(--bg); }
+      .nav-tab span { display: none; }
+      .brand-text { display: none; }
+      .message-container { max-width: 90%; }
+      .chat-input-bar { padding: 6px 8px; }
+      .btn-icon { width: 34px; height: 34px; }
+    }
+  </style>
+<script src="https://apis.google.com/js/api.js?onload=__iframefcb139664" type="text/javascript" charset="UTF-8" gapi_processed="true"></script></head>
+<body>
+ 
+  <!-- AUTH / PROFILE INITIALIZATION SCREEN -->
+  <div id="authView">
+    <div class="auth-card glass">
+      <div class="brand" style="justify-content: center; margin-bottom: 10px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield" aria-hidden="true" class="lucide lucide-shield"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg> <span class="brand-text">SharowChat</span>
+      </div>
+ 
+      <div id="authStep1">
+        <h2 class="auth-title">Bienvenue</h2>
+        <p class="auth-subtitle">Espace de discussion confidentiel et épuré</p>
+        <button id="btnGoogleAuth" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-in" aria-hidden="true" class="lucide lucide-log-in"><path d="m10 17 5-5-5-5"></path><path d="M15 12H3"></path><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path></svg> Continuer avec Google
+        </button>
+      </div>
+ 
+      <div id="authStep2" class="hidden">
+        <h2 class="auth-title">Création de compte</h2>
+        <p class="auth-subtitle">Configurez votre identité</p>
+         
+        <div style="display: flex; justify-content: center; margin-bottom: 14px;">
+          <div id="avatarSetupPreview" class="avatar-box" style="width: 68px; height: 68px; font-size: 1.4rem;">?</div>
+        </div>
+        <label class="btn btn-icon" style="width: auto; padding: 0 14px; margin-bottom: 14px; font-size: 0.8rem; cursor: pointer;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="camera" aria-hidden="true" class="lucide lucide-camera"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path><circle cx="12" cy="13" r="3"></circle></svg> Choisir une photo
+          <input type="file" id="fileAvatarInput" accept="image/*" class="hidden">
+        </label>
+ 
+        <input type="text" id="setupDisplayName" class="input-field" placeholder="Nom d'affichage">
+        <input type="text" id="setupUserTag" class="input-field" placeholder="@usertag (ex: luc_2026)">
+        <input type="text" id="setupBio" class="input-field" placeholder="Bio / Description">
+        <input type="password" id="setupPass" class="input-field" placeholder="Mot de passe">
+ 
+        <button id="btnSaveProfile" class="btn btn-primary">Terminer</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- MAIN APP NAVBAR -->
+  <header class="app-header glass">
+    <div class="brand"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="radio" aria-hidden="true" class="lucide lucide-radio"><path d="M16.247 7.761a6 6 0 0 1 0 8.478"></path><path d="M19.075 4.933a10 10 0 0 1 0 14.134"></path><path d="M4.925 19.067a10 10 0 0 1 0-14.134"></path><path d="M7.753 16.239a6 6 0 0 1 0-8.478"></path><circle cx="12" cy="12" r="2"></circle></svg> <span class="brand-text">SharowChat</span></div>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" id="tabChats" onclick="switchMainTab('chats')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="message-square" aria-hidden="true" class="lucide lucide-message-square"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"></path></svg> <span>Chat</span></button>
+      <button class="nav-tab" id="tabXplore" onclick="switchMainTab('xplore')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="compass" aria-hidden="true" class="lucide lucide-compass"><circle cx="12" cy="12" r="10"></circle><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"></path></svg> <span>Xplore</span></button>
+      <button class="nav-tab" id="tabSettingsNav" onclick="switchMainTab('settings')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" aria-hidden="true" class="lucide lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg> <span>Paramètres</span></button>
+      <button class="nav-tab" id="tabDownload" onclick="switchMainTab('download')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg> <span>Télécharger</span></button>
+    </nav>
+    <div class="user-profile-btn" id="topAvatarBtn" onclick="openProfileModal()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user" aria-hidden="true" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+  </header>
+ 
+  <!-- APP CONTENT BODY -->
+  <div class="app-body">
+    <!-- LEFT SIDEBAR: CONTACTS -->
+    <aside class="contacts-sidebar" id="contactsSidebar">
+      <div class="sidebar-search">
+        <input type="text" id="searchContactInput" class="input-field" placeholder="Rechercher un contact..." style="margin: 0;" oninput="loadContactsList()">
+      </div>
+      <button id="btnOpenAddModal" class="btn btn-secondary" style="margin: 6px; width: calc(100% - 12px);" title="Voir tous les utilisateurs" onclick="openAddContactModal()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" aria-hidden="true" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg> Voir tous les utilisateurs</button>
+      <div class="contacts-list" id="contactsListContainer"></div>
+    </aside>
+ 
+    <!-- MAIN STAGE -->
+    <main class="main-stage hidden" id="mainStage">
+      <!-- VIEW: CHAT -->
+      <section id="chatView" class="chat-container">
+        <div class="chat-header">
+          <div class="chat-header-info" onclick="openContactInfoModal()">
+            <button class="btn btn-icon" id="btnBackContacts" onclick="event.stopPropagation(); goBackToSidebar()" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-left" aria-hidden="true" class="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg></button>
+            <div class="avatar-wrapper">
+              <div id="activeChatAvatar" class="avatar-box" style="width: 36px; height: 36px;">?</div>
+              <div id="activeChatStatus" class="status-dot"></div>
+            </div>
+            <div>
+              <div id="activeChatName" class="contact-name">Sélectionnez un contact</div>
+              <div id="activeChatTag" class="contact-tag">SharowChat Network</div>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="messages-viewport" id="messagesViewport">
+          <div style="text-align: center; color: var(--text-muted); margin: auto; font-size: 0.85rem;">Sélectionnez une discussion pour commencer</div>
+        </div>
+ 
+        <div class="chat-input-bar hidden" id="chatInputBar">
+          <input type="file" id="mediaFileInput" accept="image/*,video/*" class="hidden" onchange="handleFileUpload(event)">
+          <button class="btn btn-icon" onclick="document.getElementById('mediaFileInput').click()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="paperclip" aria-hidden="true" class="lucide lucide-paperclip"><path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"></path></svg></button>
+          <button class="btn btn-icon" id="btnRecordVoice" onclick="toggleVoiceRecording()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="mic" aria-hidden="true" class="lucide lucide-mic"><path d="M12 19v3"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><rect x="9" y="2" width="6" height="13" rx="3"></rect></svg></button>
+          <button class="btn btn-icon" onclick="openKlipyModal()" title="GIFs Klipy"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="image" aria-hidden="true" class="lucide lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg></button>
+          <div class="chat-input-wrapper">
+            <input type="text" id="chatMessageInput" placeholder="Écrire un message..." onkeypress="if(event.key==='Enter') sendTextMessage()">
+          </div>
+          <button class="btn-send-round" onclick="sendTextMessage()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="send" aria-hidden="true" style="width:16px; height:16px;" class="lucide lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg></button>
+        </div>
+      </section>
+ 
+      <!-- VIEW: XPLORE FEED -->
+      <section id="xploreView" class="xplore-container hidden">
+        <div class="xplore-welcome glass">
+          <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 4px;">Bienvenue dans Xplore</h2>
+          <p style="color: var(--text-muted); font-size: 0.82rem;">Découvrez les publications de la communauté SharowChat.</p>
+        </div>
+        <div id="xploreFeedContainer"></div>
+        <button class="btn btn-primary fab-center" style="width: 52px; height: 52px; border-radius: 50%; padding:0; display: flex; align-items: center; justify-content: center;" onclick="openXplorePostModal()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" aria-hidden="true" class="lucide lucide-plus"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></button>
+      </section>
+ 
+      <!-- VIEW: PARAMETRES -->
+      <section id="settingsView" class="settings-container hidden">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 18px;">Paramètres</h2>
+         
+        <div class="settings-group glass" style="padding: 16px; border-radius: var(--radius-lg); text-align: center;">
+          <div class="settings-title"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user" aria-hidden="true" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Visualisation Photo de Profil</div>
+          <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+            <div id="settingsLargeAvatarPreview" class="avatar-box" style="width: 90px; height: 90px; font-size: 2.2rem;">?</div>
+          </div>
+          <label style="font-size:0.8rem; color:var(--text-muted);">Mettre à jour la photo de profil</label>
+          <input type="file" id="settingsAvatarFile" accept="image/*" class="input-field" onchange="updateProfileAvatarDirect(event)" style="margin-top: 6px;">
+        </div>
+ 
+        <div class="settings-group glass" style="padding: 16px; border-radius: var(--radius-lg);">
+          <div class="settings-title"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sliders" aria-hidden="true" class="lucide lucide-sliders"><path d="M10 8h4"></path><path d="M12 21v-9"></path><path d="M12 8V3"></path><path d="M17 16h4"></path><path d="M19 12V3"></path><path d="M19 21v-5"></path><path d="M3 14h4"></path><path d="M5 10V3"></path><path d="M5 21v-7"></path></svg> Compte & Statut</div>
+          <label style="font-size:0.8rem; color:var(--text-muted);">Nom d'affichage</label>
+          <input type="text" id="settingsDisplayName" class="input-field" placeholder="Nom">
+           
+          <label style="font-size:0.8rem; color:var(--text-muted);">Nom d'utilisateur (@)</label>
+          <input type="text" id="settingsUserTag" class="input-field" placeholder="@usertag">
+ 
+          <label style="font-size:0.8rem; color:var(--text-muted);">Email</label>
+          <input type="email" id="settingsEmail" class="input-field" placeholder="Email">
+           
+          <label style="font-size:0.8rem; color:var(--text-muted);">Bio</label>
+          <input type="text" id="settingsBio" class="input-field" placeholder="Bio">
+           
+          <label style="font-size:0.8rem; color:var(--text-muted);">Statut de présence</label>
+          <select id="settingsStatusSelect" class="input-field" onchange="updateUserStatus(this.value)">
+            <option value="online">En ligne (Vert)</option>
+            <option value="busy">Occupé (Rouge)</option>
+            <option value="offline">Déconnecté / Rien</option>
+          </select>
+ 
+          <div style="margin-top: 8px; font-size: 0.88rem; color: var(--text-muted);">
+            ShadowScore (réactions reçues) : <strong id="settingsShadowScore" style="color: var(--text);">0</strong>
+          </div>
+ 
+          <button class="btn btn-primary" style="margin-top: 10px;" onclick="saveSettingsProfile()">Mettre à jour le profil</button>
+        </div>
+ 
+        <div class="settings-group glass" style="padding: 16px; border-radius: var(--radius-lg);">
+          <div class="settings-title"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield" aria-hidden="true" class="lucide lucide-shield"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg> Sécurité</div>
+          <input type="password" id="settingsPass" class="input-field" placeholder="Nouveau mot de passe">
+          <button class="btn btn-secondary" onclick="saveSettingsPass()">Changer le mot de passe</button>
+        </div>
+ 
+        <div class="settings-group glass" style="padding: 16px; border-radius: var(--radius-lg);">
+          <div class="settings-title"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="image" aria-hidden="true" class="lucide lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg> Arrière-plan du Chat</div>
+          <label style="font-size:0.8rem; color:var(--text-muted);">Importer une photo d'arrière-plan</label>
+          <input type="file" id="settingsBgFile" accept="image/*" class="input-field" onchange="updateChatBgFile(event)">
+          <button class="btn btn-secondary" style="width: auto; margin-top: 8px;" onclick="resetChatBg()">Réinitialiser</button>
+        </div>
+ 
+        <!-- DEVELOPER CREDITS -->
+        <div class="settings-group glass" style="padding: 16px; border-radius: var(--radius-lg); text-align: center;">
+          <div class="settings-title" style="justify-content: center;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="code" aria-hidden="true" class="lucide lucide-code"><path d="m16 18 6-6-6-6"></path><path d="m8 6-6 6 6 6"></path></svg> Développeur</div>
+          <p style="font-weight: 600; font-size: 0.95rem; margin-bottom: 2px;">Trixyverse 161</p>
+          <a href="https://trixyverse.netlify.app" target="_blank" style="color: var(--x-blue); text-decoration: underline; font-size: 0.85rem;">trixyverse161@gmail.com / trixyverse.netlify.app</a>
+        </div>
+ 
+        <!-- Bouton Déconnexion & Bouton Supprimer le compte -->
+        <div class="settings-group" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 30px;">
+          <button class="btn btn-primary" style="background: var(--danger); border: none;" onclick="logout()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-out" aria-hidden="true" class="lucide lucide-log-out"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg> Déconnexion</button>
+          <button class="btn btn-secondary" style="color: var(--danger); border-color: var(--danger);" onclick="deleteAccountWithRecovery()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-x" aria-hidden="true" class="lucide lucide-user-x"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="17" x2="22" y1="8" y2="13"></line><line x1="22" x2="17" y1="8" y2="13"></line></svg> Supprimer mon compte 😢</button>
+        </div>
+      </section>
+ 
+      <!-- VIEW: DOWNLOAD -->
+      <section id="downloadView" class="xplore-container hidden" style="text-align: center; justify-content: center; display: flex; flex-direction: column; gap: 12px;">
+        <div class="xplore-card glass" style="border-radius: var(--radius-lg);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="smartphone" aria-hidden="true" style="width: 44px; height: 44px; margin: 0 auto 14px;" class="lucide lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect><path d="M12 18h.01"></path></svg>
+          <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 6px;">SharowChat Android</h2>
+          <a href="SharowChat.apk" download="" class="btn btn-primary" style="max-width: 240px; margin: 0 auto;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg> Télécharger</a>
+        </div>
+        <div class="xplore-card glass" style="border-radius: var(--radius-lg);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="monitor" aria-hidden="true" style="width: 44px; height: 44px; margin: 0 auto 14px;" class="lucide lucide-monitor"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
+          <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 6px;">Windows x64_86</h2>
+          <a href="SharowChat_Windows_x64_86.exe" download="" class="btn btn-primary" style="max-width: 240px; margin: 0 auto;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg> Télécharger pour Windows x64_86</a>
+        </div>
+      </section>
+    </main>
+  </div>
+ 
+  <!-- MODAL: TOUS LES UTILISATEURS -->
+  <div id="addContactModal" class="modal-overlay hidden users-fullscreen-modal">
+    <div class="modal-box glass">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+        <button class="btn btn-icon" onclick="closeAddContactModal()" title="Retour"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-left" aria-hidden="true" class="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg></button>
+        <h3 style="font-weight: 700; font-size: 1rem;">Tous les utilisateurs</h3>
+      </div>
+      <input type="text" id="addContactModalTag" class="input-field" placeholder="Rechercher sur le réseau (nom ou @tag)..." oninput="filterUsersToAdd(this.value)">
+      <div id="allUsersContainer" class="users-fullscreen-list"></div>
+    </div>
+  </div>
+ 
+  <!-- INVITATION BLUR MODAL OVERLAY -->
+  <div id="invitationBlurCard" class="invitation-blur-card hidden">
+    <h3 style="font-weight: 700; font-size: 1rem; margin-bottom: 6px;">Nouvelle demande</h3>
+    <p id="invitationCardText" style="font-size: 0.88rem; color: var(--text); line-height: 1.35;"></p>
+    <div class="invitation-btns">
+      <button class="btn-circle-action btn-accept" onclick="respondInvitation(true)" title="Accepter"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" aria-hidden="true" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></button>
+      <button class="btn-circle-action btn-decline" onclick="respondInvitation(false)" title="Refuser"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+    </div>
+  </div>
+ 
+  <!-- MODAL: CONTACT INFO -->
+  <div id="contactInfoModal" class="modal-overlay hidden">
+    <div class="modal-box glass" style="text-align: center;">
+      <div style="display: flex; justify-content: flex-end;"><button class="btn btn-icon" onclick="closeContactInfoModal()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div>
+      <div id="infoModalAvatar" class="avatar-box" style="width: 72px; height: 72px; margin: 0 auto 10px; font-size: 1.6rem;">?</div>
+      <h3 id="infoModalName" style="font-weight: 700; font-size: 1.1rem;">...</h3>
+      <p id="infoModalTag" style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 14px;">@tag</p>
+      <div id="infoModalBio" class="glass" style="padding: 10px; border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: 16px; text-align: left;">Bio...</div>
+       
+      <div style="display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--border); padding-top: 14px;">
+        <button class="btn btn-secondary" onclick="deleteConversation()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trash-2" aria-hidden="true" class="lucide lucide-trash-2"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Supprimer la conversation</button>
+        <button id="blockContactBtn" class="btn btn-secondary" style="color: var(--danger); border-color: var(--danger);" onclick="toggleBlockContact()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="ban" aria-hidden="true" class="lucide lucide-ban"><circle cx="12" cy="12" r="10"></circle><path d="M4.929 4.929 19.07 19.071"></path></svg> Bloquer</button>
+        <button class="btn btn-primary" style="background: var(--danger); border: none;" onclick="deleteContact()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-x" aria-hidden="true" class="lucide lucide-user-x"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="17" x2="22" y1="8" y2="13"></line><line x1="22" x2="17" y1="8" y2="13"></line></svg> Supprimer le contact</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- MODAL: POST XPLORE -->
+  <div id="xplorePostModal" class="modal-overlay hidden" style="background: var(--bg);">
+    <div class="modal-box glass" style="max-width: 580px; height: 88vh; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <h3 style="font-weight: 700; font-size: 1.1rem;">Nouvelle Publication (Xplore)</h3>
+          <button class="btn btn-icon" onclick="closeXplorePostModal()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+        </div>
+        <textarea id="xploreInputText" class="input-field" style="height: 130px; resize: none;" maxlength="280" placeholder="Quoi de neuf ?"></textarea>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 14px;"><span id="xploreCounter" style="font-size: 0.8rem; color: var(--text-muted);">0/280</span></div>
+         
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px;">
+          <label style="font-size: 0.82rem; color: var(--text-muted);">Ajouter un média (image/vidéo)</label>
+          <input type="file" id="xploreMediaFile" accept="image/*,video/*" class="input-field">
+           
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="xplorePrivateMode" style="width: 16px; height: 16px; accent-color: var(--accent);">
+            <label for="xplorePrivateMode" style="font-size: 0.85rem;">Mode Privé (visible uniquement par vous)</label>
+          </div>
+        </div>
+      </div>
+ 
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary" onclick="closeXplorePostModal()">Annuler</button>
+        <button class="btn btn-primary" onclick="publishXplorePost()">Publier</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- MODAL: KLIPY GIF SEARCH CORRIGÉ -->
+  <div id="klipyModal" class="modal-overlay hidden">
+    <div class="modal-box glass">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3 style="font-weight: 700; font-size: 1rem;">Recherche GIF (Klipy)</h3>
+        <button class="btn btn-icon" onclick="closeKlipyModal()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+      </div>
+      <input type="text" id="klipySearchInput" class="input-field" placeholder="Rechercher sur Klipy..." oninput="searchKlipyGifs(this.value)">
+      <div id="klipyResultsContainer" style="max-height: 260px; overflow-y: auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 6px;"></div>
+      <div id="emojiFallbackContainer" class="hidden" style="margin-top:6px;"></div>
+      <div style="text-align:center; color:var(--text-muted); font-size:0.65rem; margin-top:7px;">Powered by KLIPY</div>
+    </div>
+  </div>
+ 
+  <!-- PROFILE MODAL -->
+  <div id="profileModal" class="modal-overlay hidden">
+    <div class="modal-box glass">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-weight: 700; font-size: 1rem;">Mon Profil & Reposts</h3>
+        <button class="btn btn-icon" onclick="closeProfileModal()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+      </div>
+      <div style="text-align: center; margin-bottom: 16px;">
+        <div id="modalAvatarPreview" class="avatar-box" style="width: 68px; height: 68px; margin: 0 auto 10px; font-size: 1.4rem;">?</div>
+        <h4 id="modalDisplayName" style="font-weight: 600;">...</h4>
+        <p id="modalUserTag" style="color: var(--text-muted); font-size: 0.82rem;">@tag</p>
+      </div>
+      <div style="margin-bottom: 14px;">
+        <h5 style="font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">Mes Reposts Récents</h5>
+        <div id="modalUserRepostsContainer" style="max-height: 140px; overflow-y: auto; text-align: left; font-size: 0.82rem;"></div>
+      </div>
+      <button class="btn btn-primary" style="background: var(--danger); border: none;" onclick="logout()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-out" aria-hidden="true" class="lucide lucide-log-out"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg> Déconnexion</button>
+    </div>
+  </div>
+ 
+  <script>
+    const firebaseConfig = {
+      apiKey: "",
+      authDomain: "", 
+      projectId: "sharowchat",
+      storageBucket: "",
+      messagingSenderId: "779705141657",
+      appId: ""
+    };
+ 
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+ 
+    let currentUser = null;
+    let myProfile = null;
+    let activeContactUid = null;
+    let activeContactObj = null;
+    let currentChatId = null;
+    let unsubscribeMessages = null;
+    let unsubscribeXploreFeed = null;
+    let base64AvatarUpload = "";
+     
+    let currentTab = 'chats';
+    let lastPostTime = 0;
+ 
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+    let activeInvitation = null;
+ 
+    // Notifications SharowChat : bridge Android + événement Web + Notification API.
+    // Le cookie est uniquement un indicateur de session rapide : aucun token Firebase n'y est stocké.
+    function setSharowAuthHint(uid) {
+      if (!uid) return;
+      const maxAge = 60 * 60 * 24 * 30;
+      document.cookie = `sharow_auth_hint=${encodeURIComponent(uid)}; Max-Age=${maxAge}; Path=/; SameSite=Lax`;
+      try { localStorage.setItem('sharow_auth_hint', uid); } catch (e) {}
+    }
+ 
+    function clearSharowAuthHint() {
+      document.cookie = 'sharow_auth_hint=; Max-Age=0; Path=/; SameSite=Lax';
+      try { localStorage.removeItem('sharow_auth_hint'); } catch (e) {}
+    }
+ 
+    function getSharowAuthHint() {
+      const match = document.cookie.match(/(?:^|; )sharow_auth_hint=([^;]*)/);
+      if (match) return decodeURIComponent(match[1]);
+      try { return localStorage.getItem('sharow_auth_hint') || null; } catch (e) { return null; }
+    }
+ 
+    // API publique pour le script Android/WebView.
+    window.SharowNotifications = {
+      version: 1,
+      last: null,
+      notify(title, message, type = 'general', data = {}) {
+        const payload = { title, message, type, data, timestamp: Date.now() };
+        this.last = payload;
+        try { localStorage.setItem('sharow_last_notification', JSON.stringify(payload)); } catch (e) {}
+        window.dispatchEvent(new CustomEvent('sharow:notification', { detail: payload }));
+ 
+        if (window.AndroidNative && typeof window.AndroidNative.showNotification === 'function') {
+          try { window.AndroidNative.showNotification(title, message, type); } catch (e) {
+            try { window.AndroidNative.showNotification(title, message); } catch (e2) {}
+          }
+        }
+ 
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && document.visibilityState !== 'visible') {
+          try { new Notification(title, { body: message, tag: `sharow-${type}` }); } catch (e) {}
+        }
+        return payload;
+      }
+    };
+ 
+    function triggerAndroidNotification(title, message, type = 'general', data = {}) {
+      return window.SharowNotifications.notify(title, message, type, data);
+    }
+ 
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      window.addEventListener('resize', updateMobileLayout);
+ 
+      const savedWallpaper = localStorage.getItem('sharow_wallpaper');
+      if (savedWallpaper) applyWallpaperStyle(savedWallpaper);
+ 
+      // Le script Android peut lire cette indication immédiatement avant que Firebase restaure la session.
+      window.sharowAuthHint = getSharowAuthHint();
+ 
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          currentUser = user;
+          setSharowAuthHint(user.uid);
+          const userDoc = await db.collection('users').doc(user.uid).get();
+          if (userDoc.exists) {
+            myProfile = userDoc.data();
+ 
+            if (myProfile.scheduledForDeletion) {
+              const deletionTime = myProfile.scheduledForDeletion.toDate ? myProfile.scheduledForDeletion.toDate().getTime() : myProfile.scheduledForDeletion;
+              const daysLeft = Math.ceil((deletionTime - Date.now()) / (1000 * 60 * 60 * 24));
+ 
+              if (daysLeft > 0) {
+                const restore = confirm(`Votre compte est en cours de suppression (reste ${daysLeft} jour(s)). Voulez-vous le restaurer ?`);
+                if (restore) {
+                  await db.collection('users').doc(user.uid).update({ scheduledForDeletion: firebase.firestore.FieldValue.delete() });
+                  myProfile.scheduledForDeletion = null;
+                  alert("Compte restauré avec succès !");
+                } else {
+                  auth.signOut();
+                  return;
+                }
+              } else {
+                alert("Le délai de 10 jours est dépassé. Ce compte est définitivement supprimé.");
+                await db.collection('users').doc(user.uid).delete();
+                auth.signOut();
+                return;
+              }
+            }
+ 
+            document.getElementById('authView').classList.add('hidden');
+            initAppView();
+            listenToIncomingRequests();
+          } else {
+            showProfileSetupStep(user);
+          }
+        } else {
+          clearSharowAuthHint();
+          document.getElementById('authView').classList.remove('hidden');
+          document.getElementById('authStep1').classList.remove('hidden');
+          document.getElementById('authStep2').classList.add('hidden');
+        }
+      });
+       
+      document.getElementById('xploreInputText').addEventListener('input', (e) => {
+          document.getElementById('xploreCounter').innerText = `${e.target.value.length}/280`;
+      });
+    });
+ 
+    document.getElementById('btnGoogleAuth').addEventListener('click', () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(err => alert(err.message));
+    });
+ 
+    function showProfileSetupStep(user) {
+      document.getElementById('authStep1').classList.add('hidden');
+      document.getElementById('authStep2').classList.remove('hidden');
+      document.getElementById('setupDisplayName').value = user.displayName || '';
+    }
+ 
+    document.getElementById('fileAvatarInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          base64AvatarUpload = event.target.result;
+          const preview = document.getElementById('avatarSetupPreview');
+          preview.innerText = '';
+          preview.style.backgroundImage = `url(${base64AvatarUpload})`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+ 
+    document.getElementById('btnSaveProfile').addEventListener('click', async () => {
+      const name = document.getElementById('setupDisplayName').value.trim();
+      const usertag = document.getElementById('setupUserTag').value.trim().toLowerCase();
+      const bio = document.getElementById('setupBio').value.trim();
+      const pass = document.getElementById('setupPass').value;
+ 
+      if (!name || !usertag || !pass) return alert("Remplissez tous les champs obligatoires.");
+ 
+      myProfile = {
+        uid: currentUser.uid,
+        email: currentUser.email,
+        displayName: name,
+        usertag: usertag,
+        bio: bio || "SharowChat User",
+        photoURL: base64AvatarUpload || "",
+        status: "online",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+ 
+      await db.collection('users').doc(currentUser.uid).set(myProfile);
+      try { await currentUser.updatePassword(pass); } catch (err) {}
+ 
+      document.getElementById('authView').classList.add('hidden');
+      initAppView();
+    });
+ 
+    async function initAppView() {
+      updateTopAvatarUI();
+      document.getElementById('settingsDisplayName').value = myProfile.displayName || '';
+      document.getElementById('settingsUserTag').value = myProfile.usertag || '';
+      document.getElementById('settingsBio').value = myProfile.bio || '';
+      document.getElementById('settingsEmail').value = myProfile.email || currentUser.email || '';
+      if(myProfile.status) document.getElementById('settingsStatusSelect').value = myProfile.status;
+       
+      // Paramètre photo preview par défaut avec la photo du compte
+      const largePrev = document.getElementById('settingsLargeAvatarPreview');
+      if (myProfile.photoURL) {
+        largePrev.innerText = '';
+        largePrev.style.backgroundImage = `url(${myProfile.photoURL})`;
+      } else {
+        largePrev.style.backgroundImage = '';
+        largePrev.innerText = myProfile.displayName.charAt(0).toUpperCase();
+      }
+ 
+      await calculateShadowScore();
+      loadContactsList();
+      loadXploreFeed();
+      updateMobileLayout();
+ 
+      // Actualisation légère toutes les 10 secondes, sans recharger la page.
+      if (!window.sharowRefreshTimer) {
+        window.sharowRefreshTimer = setInterval(async () => {
+          if (!myProfile) return;
+          loadContactsList();
+          if (currentTab === 'xplore') {
+            try { await calculateShadowScore(); } catch (e) {}
+          }
+        }, 10000);
+      }
+    }
+ 
+    function updateTopAvatarUI() {
+      const topAvatar = document.getElementById('topAvatarBtn');
+      if (myProfile.photoURL) {
+        topAvatar.innerHTML = '';
+        topAvatar.style.backgroundImage = `url(${myProfile.photoURL})`;
+      } else {
+        topAvatar.innerHTML = `<span style="font-weight:700;">${myProfile.displayName.charAt(0).toUpperCase()}</span>`;
+      }
+    }
+ 
+    function switchMainTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+       
+      document.getElementById('chatView').classList.add('hidden');
+      document.getElementById('xploreView').classList.add('hidden');
+      document.getElementById('settingsView').classList.add('hidden');
+      document.getElementById('downloadView').classList.add('hidden');
+ 
+      if (tab === 'chats') { document.getElementById('tabChats').classList.add('active'); }
+      else if (tab === 'xplore') { document.getElementById('tabXplore').classList.add('active'); document.getElementById('xploreView').classList.remove('hidden'); }
+      else if (tab === 'settings') { document.getElementById('tabSettingsNav').classList.add('active'); document.getElementById('settingsView').classList.remove('hidden'); }
+      else if (tab === 'download') { document.getElementById('tabDownload').classList.add('active'); document.getElementById('downloadView').classList.remove('hidden'); }
+       
+      updateMobileLayout();
+    }
+ 
+    function updateMobileLayout() {
+        const isMobile = window.innerWidth <= 768;
+        const sidebar = document.getElementById('contactsSidebar');
+        const mainStage = document.getElementById('mainStage');
+        const backBtn = document.getElementById('btnBackContacts');
+ 
+        if (!isMobile) {
+            sidebar.classList.remove('hidden');
+            mainStage.classList.remove('hidden');
+            if (currentTab === 'chats') document.getElementById('chatView').classList.remove('hidden');
+            backBtn.style.display = 'none';
+        } else {
+            backBtn.style.display = 'inline-flex';
+            if (currentTab === 'chats') {
+                if (activeContactUid) {
+                    sidebar.classList.add('hidden');
+                    mainStage.classList.remove('hidden');
+                    document.getElementById('chatView').classList.remove('hidden');
+                } else {
+                    sidebar.classList.remove('hidden');
+                    mainStage.classList.add('hidden');
+                }
+            } else {
+                sidebar.classList.add('hidden');
+                mainStage.classList.remove('hidden');
+            }
+        }
+    }
+ 
+    function goBackToSidebar() {
+        activeContactUid = null;
+        activeContactObj = null;
+        currentChatId = null;
+        updateMobileLayout();
+    }
+ 
+    // Modal Démarrer discussion / Rechercher sur le réseau (avec restriction soi-même)
+    function openAddContactModal() { 
+      document.getElementById('addContactModal').classList.remove('hidden'); 
+      const search = document.getElementById('addContactModalTag');
+      search.value = '';
+      loadAllUsersToAdd();
+      setTimeout(() => search.focus(), 50);
+    }
+     
+    function closeAddContactModal() { 
+      setTimeout(() => {
+        document.getElementById('addContactModal').classList.add('hidden'); 
+      }, 50);
+    }
+ 
+    let cachedAllUsers = [];
+    let existingContactUids = new Set();
+ 
+    async function loadAllUsersToAdd() {
+      const [snap, contactsSnap] = await Promise.all([
+        db.collection('users').get(),
+        db.collection('users').doc(myProfile.uid).collection('contacts').get()
+      ]);
+ 
+      existingContactUids = new Set();
+      contactsSnap.forEach(doc => existingContactUids.add(doc.id));
+ 
+      cachedAllUsers = [];
+      snap.forEach(doc => {
+        if(doc.id !== myProfile.uid) cachedAllUsers.push(doc.data());
+      });
+      renderAllUsersList(cachedAllUsers);
+    }
+ 
+    function filterUsersToAdd(val) {
+      const q = val.toLowerCase().trim();
+      const filtered = cachedAllUsers.filter(u => 
+        (u.displayName && u.displayName.toLowerCase().includes(q)) || 
+        (u.usertag && u.usertag.toLowerCase().includes(q))
+      );
+      renderAllUsersList(filtered);
+    }
+ 
+    function renderAllUsersList(users) {
+      const container = document.getElementById('allUsersContainer');
+      container.innerHTML = '';
+      if(users.length === 0) {
+        container.innerHTML = '<p style="font-size:0.82rem; color:var(--text-muted); text-align:center; padding:10px;">Aucun utilisateur trouvé sur le réseau</p>';
+        return;
+      }
+      users.forEach(u => {
+        const item = document.createElement('div');
+        item.className = 'contact-card glass';
+        item.style.marginBottom = '4px';
+        const avStyle = u.photoURL ? `background-image:url(${u.photoURL})` : '';
+        item.innerHTML = `
+          <div class="avatar-wrapper"><div class="avatar-box" style="${avStyle}">${u.photoURL ? '' : u.displayName.charAt(0).toUpperCase()}</div></div>
+          <div class="contact-info"><div class="contact-name">${escapeHtml(u.displayName)}</div><div class="contact-tag">@${escapeHtml(u.usertag)}</div></div>
+          ${existingContactUids.has(u.uid)
+            ? '<button class="btn btn-secondary" disabled style="width:auto; padding:5px 10px; font-size:0.78rem; opacity:.7;">Vous l\'avez déjà</button>'
+            : `<button class="btn btn-primary" style="width:auto; padding:5px 10px; font-size:0.78rem;" onclick="sendFriendRequest('${u.uid}', '${escapeHtml(u.displayName)}')">Discuter</button>`}
+        `;
+        container.appendChild(item);
+      });
+    }
+ 
+    async function sendFriendRequest(targetUid, targetName) {
+      if (targetUid === myProfile.uid) {
+        alert("Vous ne pouvez pas vous ajouter vous-même !");
+        return;
+      }
+ 
+      const existingContact = await db.collection('users').doc(myProfile.uid).collection('contacts').doc(targetUid).get();
+      if (existingContact.exists) {
+        existingContactUids.add(targetUid);
+        alert(`Vous l'avez déjà dans vos contacts.`);
+        renderAllUsersList(cachedAllUsers);
+        return;
+      }
+ 
+      await db.collection('users').doc(targetUid).collection('requests').doc(myProfile.uid).set({
+        fromUid: myProfile.uid,
+        fromName: myProfile.displayName,
+        fromTag: myProfile.usertag,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert(`Demande de discussion envoyée à ${targetName} sur le réseau !`);
+      triggerAndroidNotification('Invitation envoyée', `Demande envoyée à ${targetName}.`, 'request_sent', { targetUid });
+      closeAddContactModal();
+    }
+ 
+    function listenToIncomingRequests() {
+      db.collection('users').doc(myProfile.uid).collection('requests').onSnapshot(snap => {
+        snap.docChanges().forEach(change => {
+          if (change.type === 'added') {
+            const req = change.doc.data();
+            activeInvitation = req;
+            document.getElementById('invitationCardText').innerText = `${req.fromName} (@${req.fromTag}) souhaite commencer une discussion avec vous !`;
+            document.getElementById('invitationBlurCard').classList.remove('hidden');
+            triggerAndroidNotification("Nouvelle demande réseau", `${req.fromName} veut vous contacter !`, 'friend_request', { fromUid: req.fromUid });
+          }
+        });
+      });
+    }
+ 
+    async function respondInvitation(accepted) {
+      if (!activeInvitation) return;
+      const req = activeInvitation;
+      document.getElementById('invitationBlurCard').classList.add('hidden');
+ 
+      if (accepted) {
+        const senderDoc = await db.collection('users').doc(req.fromUid).get();
+        if (senderDoc.exists) {
+          const senderData = senderDoc.data();
+          await db.collection('users').doc(myProfile.uid).collection('contacts').doc(req.fromUid).set({...senderData, blocked: false});
+          await db.collection('users').doc(req.fromUid).collection('contacts').doc(myProfile.uid).set({...myProfile, blocked: false});
+           
+          loadContactsList();
+          selectContact(senderData);
+          triggerAndroidNotification("Discussion lancée", `Vous êtes maintenant connecté avec ${req.fromName}`);
+        }
+      }
+ 
+      await db.collection('users').doc(myProfile.uid).collection('requests').doc(req.fromUid).delete();
+      activeInvitation = null;
+    }
+ 
+    function loadContactsList() {
+      if(!myProfile) return;
+      const queryText = (document.getElementById('searchContactInput')?.value || '').toLowerCase();
+       
+      db.collection('users').doc(myProfile.uid).collection('contacts').get().then(snap => {
+        const container = document.getElementById('contactsListContainer');
+        container.innerHTML = '';
+         
+        let contacts = [];
+        snap.forEach(doc => contacts.push(doc.data()));
+         
+        contacts.forEach(contact => {
+          if(queryText && !contact.displayName.toLowerCase().includes(queryText) && !contact.usertag.toLowerCase().includes(queryText)) return;
+          renderContactItem(contact, container, queryText);
+        });
+      });
+    }
+ 
+    function renderContactItem(contact, container, queryText) {
+      const card = document.createElement('div');
+      card.className = `contact-card ${activeContactUid === contact.uid ? 'active' : ''}`;
+      card.onclick = () => selectContact(contact);
+       
+      let dispName = escapeHtml(contact.displayName);
+      if (queryText) {
+          const regex = new RegExp(`(${queryText})`, 'gi');
+          dispName = dispName.replace(regex, '<span class="search-highlight">$1</span>');
+      }
+ 
+      const avatarBg = contact.photoURL ? `background-image: url(${contact.photoURL})` : '';
+      const statusClass = contact.status === 'busy' ? 'busy' : (contact.status === 'offline' ? 'offline' : '');
+ 
+      card.innerHTML = `
+        <div class="avatar-wrapper"><div class="avatar-box" style="${avatarBg}">${contact.photoURL ? '' : contact.displayName.charAt(0).toUpperCase()}</div><div class="status-dot ${statusClass}"></div></div>
+        <div class="contact-info"><div class="contact-name">${dispName}</div><div class="contact-tag">@${escapeHtml(contact.usertag)}${contact.blocked ? ' · Bloqué' : ''}</div></div>
+      `;
+      container.appendChild(card);
+    }
+ 
+    function selectContact(contact) {
+      activeContactUid = contact.uid;
+      activeContactObj = contact;
+      currentChatId = [myProfile.uid, contact.uid].sort().join('_');
+      document.getElementById('activeChatName').innerText = contact.displayName;
+      document.getElementById('activeChatTag').innerText = `@${contact.usertag}`;
+       
+      const avatarBox = document.getElementById('activeChatAvatar');
+      if (contact.photoURL) {
+        avatarBox.innerText = '';
+        avatarBox.style.backgroundImage = `url(${contact.photoURL})`;
+      } else {
+        avatarBox.style.backgroundImage = '';
+        avatarBox.innerText = contact.displayName.charAt(0).toUpperCase();
+      }
+ 
+      document.getElementById('chatInputBar').classList.remove('hidden');
+      const chatInput = document.getElementById('chatMessageInput');
+      chatInput.disabled = isContactBlocked();
+      chatInput.placeholder = isContactBlocked() ? 'Contact bloqué' : 'Écrire un message...';
+      updateMobileLayout();
+      listenMessages();
+    }
+ 
+    function isContactBlocked() {
+      return !!(activeContactObj && activeContactObj.blocked === true);
+    }
+ 
+    function updateBlockButton() {
+      const btn = document.getElementById('blockContactBtn');
+      if (!btn) return;
+      btn.innerHTML = isContactBlocked()
+        ? '<i data-lucide="circle-off"></i> Débloquer'
+        : '<i data-lucide="ban"></i> Bloquer';
+      btn.style.color = isContactBlocked() ? 'var(--success)' : 'var(--danger)';
+      btn.style.borderColor = isContactBlocked() ? 'var(--success)' : 'var(--danger)';
+      lucide.createIcons();
+    }
+ 
+    function openContactInfoModal() {
+      if (!activeContactObj) return;
+      document.getElementById('infoModalName').innerText = activeContactObj.displayName;
+      document.getElementById('infoModalTag').innerText = `@${activeContactObj.usertag}`;
+      document.getElementById('infoModalBio').innerText = activeContactObj.bio || "Aucune bio.";
+      const av = document.getElementById('infoModalAvatar');
+      if (activeContactObj.photoURL) { av.innerText = ''; av.style.backgroundImage = `url(${activeContactObj.photoURL})`; }
+      else { av.style.backgroundImage = ''; av.innerText = activeContactObj.displayName.charAt(0).toUpperCase(); }
+      updateBlockButton();
+      document.getElementById('contactInfoModal').classList.remove('hidden');
+    }
+    function closeContactInfoModal() { document.getElementById('contactInfoModal').classList.add('hidden'); }
+ 
+    async function toggleBlockContact() {
+      if (!activeContactUid || !activeContactObj) return;
+      const nextBlocked = !isContactBlocked();
+      await db.collection('users').doc(myProfile.uid).collection('contacts').doc(activeContactUid).update({ blocked: nextBlocked });
+      activeContactObj.blocked = nextBlocked;
+      updateBlockButton();
+      const input = document.getElementById('chatMessageInput');
+      if (input) {
+        input.disabled = nextBlocked;
+        input.placeholder = nextBlocked ? 'Contact bloqué' : 'Écrire un message...';
+      }
+      if (nextBlocked) alert('Contact bloqué. Ses messages seront masqués pour vous.');
+      else alert('Contact débloqué.');
+      loadContactsList();
+      listenMessages();
+    }
+ 
+    async function deleteConversation() {
+      if (!currentChatId) return;
+      if (confirm("Voulez-vous vraiment supprimer toute la conversation ?")) {
+        const batch = db.batch();
+        const snap = await db.collection('chats').doc(currentChatId).collection('messages').get();
+        snap.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        alert("Conversation supprimée.");
+        closeContactInfoModal();
+        listenMessages();
+      }
+    }
+ 
+    async function deleteContact() {
+      if (!activeContactUid) return;
+      if (confirm("Voulez-vous vraiment supprimer ce contact définitivement ?")) {
+        await db.collection('users').doc(myProfile.uid).collection('contacts').doc(activeContactUid).delete();
+        alert("Contact supprimé.");
+        closeContactInfoModal();
+        goBackToSidebar();
+        document.getElementById('messagesViewport').innerHTML = '<div style="text-align: center; color: var(--text-muted); margin: auto;">Sélectionnez une discussion</div>';
+        document.getElementById('chatInputBar').classList.add('hidden');
+        document.getElementById('activeChatName').innerText = "Sélectionnez un contact";
+        loadContactsList();
+      }
+    }
+     
+    function linkify(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, function(url) {
+            return `<a href="${url}" target="_blank">${url}</a>`;
+        });
+    }
+ 
+    function formatDateTime(value) {
+      if (!value) return "à l'instant";
+      let date = null;
+      if (value.toDate) date = value.toDate();
+      else if (value instanceof Date) date = value;
+      else if (typeof value === 'number') date = new Date(value);
+      else if (value.seconds) date = new Date(value.seconds * 1000);
+      if (!date || Number.isNaN(date.getTime())) return "à l'instant";
+      return new Intl.DateTimeFormat('fr-FR', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      }).format(date);
+    }
+ 
+    function makeMessageBubble(contentHTML, timestamp) {
+      return `<div class="message-bubble"><div>${contentHTML}</div><span class="message-time">${formatDateTime(timestamp)}</span></div>`;
+    }
+ 
+    function listenMessages() {
+      if (!currentChatId) return;
+      if (unsubscribeMessages) unsubscribeMessages();
+      const viewport = document.getElementById('messagesViewport');
+      viewport.innerHTML = '';
+      let firstMessagesSnapshot = true;
+      unsubscribeMessages = db.collection('chats').doc(currentChatId).collection('messages').orderBy('createdAt', 'asc').onSnapshot(snap => {
+        viewport.innerHTML = '';
+        window.sharowSeenMessageIds = window.sharowSeenMessageIds || new Set();
+        if (!firstMessagesSnapshot) {
+          snap.docChanges().forEach(change => {
+            if (change.type !== 'added') return;
+            const msg = change.doc.data();
+            if (msg.senderUid === myProfile.uid) return;
+            if (Array.isArray(msg.deletedFor) && msg.deletedFor.includes(myProfile.uid)) return;
+            const key = `${currentChatId}:${change.doc.id}`;
+            if (window.sharowSeenMessageIds.has(key)) return;
+            window.sharowSeenMessageIds.add(key);
+            const senderLabel = activeContactObj?.displayName || 'Nouveau message';
+            const notificationText = msg.type === 'text' ? (msg.text || 'Nouveau message') : 'Nouveau contenu reçu';
+            triggerAndroidNotification(senderLabel, notificationText, 'message', { chatId: currentChatId, messageId: change.doc.id, senderUid: msg.senderUid });
+          });
+        }
+        snap.forEach(doc => {
+          const msg = doc.data();
+          const docId = doc.id;
+          window.sharowSeenMessageIds.add(`${currentChatId}:${docId}`);
+          if (Array.isArray(msg.deletedFor) && msg.deletedFor.includes(myProfile.uid)) return;
+          if (isContactBlocked() && msg.senderUid === activeContactUid) return;
+          const isSent = msg.senderUid === myProfile.uid;
+          const row = document.createElement('div');
+          row.className = `message-container ${isSent ? 'sent' : 'received'}`;
+ 
+          let contentHTML = '';
+          if(msg.type === 'image' || msg.type === 'media') {
+              contentHTML = `<img src="${msg.mediaUrl}" class="chat-media-img">`;
+          } else if (msg.type === 'audio') {
+              contentHTML = `<div class="audio-bubble"><i data-lucide="mic"></i><audio controls src="${msg.mediaUrl}"></audio></div>`;
+          } else if (msg.type === 'gif') {
+              contentHTML = `<img src="${msg.mediaUrl}" class="chat-media-img" alt="GIF">`;
+          } else {
+              let text = escapeHtml(msg.text || '');
+              text = linkify(text);
+              contentHTML = text;
+          }
+ 
+          const bubbleHTML = makeMessageBubble(contentHTML, msg.createdAt);
+          let actionsHTML = `<div class="msg-actions">`;
+          if(isSent && msg.type === 'text') {
+              const oldText = escapeHtml(msg.text || '').replace(/'/g, "\\'");
+              actionsHTML += `<button class="msg-action-btn edit" onclick="editMessage('${docId}', '${oldText}')" title="Modifier"><i data-lucide="pencil" style="width:14px; height:14px;"></i></button>`;
+          }
+          actionsHTML += `<button class="msg-action-btn delete" onclick="deleteMessage('${docId}')" title="Supprimer"><i data-lucide="trash" style="width:14px; height:14px;"></i></button></div>`;
+ 
+          row.innerHTML = isSent ? actionsHTML + bubbleHTML : bubbleHTML + actionsHTML;
+          viewport.appendChild(row);
+        });
+        firstMessagesSnapshot = false;
+        lucide.createIcons();
+        viewport.scrollTop = viewport.scrollHeight;
+      });
+    }
+ 
+    async function sendTextMessage() {
+      const input = document.getElementById('chatMessageInput');
+      if (isContactBlocked()) return alert('Ce contact est bloqué.');
+      const text = input.value.trim();
+      if (!text || !currentChatId) return;
+      input.value = '';
+      await db.collection('chats').doc(currentChatId).collection('messages').add({
+        type: 'text', text, senderUid: myProfile.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      triggerAndroidNotification("Nouveau message envoyé", text);
+    }
+ 
+    async function editMessage(docId, oldText) {
+        const newText = prompt("Modifier le message :", oldText);
+        if(newText !== null && newText.trim() !== "") {
+            await db.collection('chats').doc(currentChatId).collection('messages').doc(docId).update({ text: newText.trim() });
+        }
+    }
+ 
+    async function deleteMessage(docId) {
+        if(confirm("Supprimer ce message pour vous ?")) {
+            await db.collection('chats').doc(currentChatId).collection('messages').doc(docId).update({
+              deletedFor: firebase.firestore.FieldValue.arrayUnion(myProfile.uid)
+            });
+        }
+    }
+ 
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file || !currentChatId) return;
+      if (isContactBlocked()) return alert('Ce contact est bloqué.');
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        await db.collection('chats').doc(currentChatId).collection('messages').add({
+          type: 'media', mediaUrl: e.target.result, senderUid: myProfile.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+     
+    async function toggleVoiceRecording() {
+        const btn = document.getElementById('btnRecordVoice');
+        if (isContactBlocked()) return alert('Ce contact est bloqué.');
+        if (isRecording) {
+            mediaRecorder.stop();
+            btn.style.color = 'var(--text)';
+            isRecording = false;
+        } else {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+                isRecording = true;
+                btn.style.color = 'var(--danger)';
+                 
+                mediaRecorder.ondataavailable = e => { audioChunks.push(e.data); };
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
+                    reader.onloadend = async () => {
+                        const base64data = reader.result;
+                        if(currentChatId) {
+                            await db.collection('chats').doc(currentChatId).collection('messages').add({
+                                type: 'audio', mediaUrl: base64data, senderUid: myProfile.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        }
+                    };
+                    audioChunks = [];
+                    stream.getTracks().forEach(t => t.stop());
+                };
+            } catch(e) {
+                alert("Erreur micro: " + e.message);
+            }
+        }
+    }
+ 
+    // Klipy + panneau emoji de secours
+    function openKlipyModal() {
+      document.getElementById('klipyModal').classList.remove('hidden');
+      document.getElementById('emojiFallbackContainer').classList.add('hidden');
+      document.getElementById('klipySearchInput').focus();
+    }
+ 
+    function closeKlipyModal() {
+      document.getElementById('klipyModal').classList.add('hidden');
+    }
+ 
+    function showEmojiFallback() {
+      const container = document.getElementById('klipyResultsContainer');
+      const fallback = document.getElementById('emojiFallbackContainer');
+      container.innerHTML = '';
+      fallback.classList.remove('hidden');
+      const emojis = ['😀','😂','🤣','😊','😍','🥰','😎','🤔','😮','😭','😡','🤯','🥳','😴','🤨','🙃','👍','👎','👏','🙏','🔥','❤️','💀','💯','✨','🎉','🚀','💻','🤖','👀','🗿','😈','🤝','👌','🫠','😶','😳','🥶','🤩','😇','🤪','😱','😤','😅','😬','🤡'];
+      fallback.innerHTML = `<div class="emoji-fallback">${emojis.map(e => `<button type="button" onclick="sendFallbackEmoji('${e}')">${e}</button>`).join('')}</div>`;
+    }
+ 
+    async function sendFallbackEmoji(emoji) {
+      if (isContactBlocked()) { alert('Ce contact est bloqué.'); return; }
+      if (!currentChatId) {
+        alert("Ouvrez une discussion avant d'envoyer un emoji.");
+        return;
+      }
+      await db.collection('chats').doc(currentChatId).collection('messages').add({
+        type: 'text', text: emoji, senderUid: myProfile.uid,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      closeKlipyModal();
+    }
+ 
+    async function searchKlipyGifs(query) {
+      const container = document.getElementById('klipyResultsContainer');
+      const fallback = document.getElementById('emojiFallbackContainer');
+      fallback.classList.add('hidden');
+      if (!query.trim()) { container.innerHTML = ''; return; }
+ 
+      container.innerHTML = '<p style="grid-column: span 2; text-align: center; color: var(--text-muted); font-size: 0.8rem;">Recherche en cours...</p>';
+      try {
+        const apiKey = '';
+        const url = `https://api.klipy.com/v2/search?q=${encodeURIComponent(query.trim())}&key=${encodeURIComponent(apiKey)}&contentfilter=high&limit=20`;
+        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const gifs = json.results || json.data?.results || json.data?.data || json.data || [];
+        container.innerHTML = '';
+ 
+        if (!Array.isArray(gifs) || gifs.length === 0) {
+          container.innerHTML = '<p style="grid-column: span 2; text-align: center; color: var(--text-muted); font-size: 0.8rem;">Aucun GIF trouvé</p>';
+          showEmojiFallback();
+          return;
+        }
+ 
+        let rendered = 0;
+        gifs.forEach(gif => {
+          const imgUrl = gif.media_formats?.gif?.url || gif.media_formats?.tinygif?.url ||
+                         gif.images?.fixed_height?.url || gif.url || gif.media_url || gif.gif_url;
+          if (!imgUrl) return;
+          rendered++;
+ 
+          const card = document.createElement('div');
+          card.style.position = 'relative'; card.style.display = 'flex';
+          card.style.flexDirection = 'column'; card.style.gap = '4px';
+ 
+          const img = document.createElement('img');
+          img.src = imgUrl; img.alt = 'GIF KLIPY'; img.loading = 'lazy';
+          img.style.width = '100%'; img.style.height = '85px';
+          img.style.objectFit = 'cover'; img.style.borderRadius = '6px';
+ 
+          const btnSend = document.createElement('button');
+          btnSend.className = 'btn btn-primary';
+          btnSend.style.padding = '3px 6px'; btnSend.style.fontSize = '0.72rem';
+          btnSend.innerText = 'Envoyer GIF';
+          btnSend.onclick = async () => {
+            if (isContactBlocked()) { alert('Ce contact est bloqué.'); return; }
+            if (currentChatId) {
+              await db.collection('chats').doc(currentChatId).collection('messages').add({
+                type:'gif', mediaUrl:imgUrl, senderUid:myProfile.uid,
+                createdAt:firebase.firestore.FieldValue.serverTimestamp()
+              });
+              closeKlipyModal();
+            } else alert("Ouvrez une discussion avant d'envoyer un GIF.");
+          };
+ 
+          card.appendChild(img); card.appendChild(btnSend); container.appendChild(card);
+        });
+ 
+        if (!rendered) {
+          container.innerHTML = '<p style="grid-column: span 2; text-align: center; color: var(--text-muted); font-size: 0.8rem;">Aucun GIF compatible trouvé</p>';
+          showEmojiFallback();
+        }
+      } catch (e) {
+        container.innerHTML = '<p style="grid-column: span 2; text-align: center; color: var(--danger); font-size: 0.8rem;">Klipy indisponible</p>';
+        showEmojiFallback();
+      }
+    }
+ 
+    async function updateUserStatus(statusVal) {
+      myProfile.status = statusVal;
+      await db.collection('users').doc(myProfile.uid).update({ status: statusVal });
+    }
+ 
+    function updateProfileAvatarDirect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          base64AvatarUpload = e.target.result;
+          await db.collection('users').doc(myProfile.uid).update({ photoURL: base64AvatarUpload });
+          myProfile.photoURL = base64AvatarUpload;
+          updateTopAvatarUI();
+           
+          const largePrev = document.getElementById('settingsLargeAvatarPreview');
+          largePrev.innerText = '';
+          largePrev.style.backgroundImage = `url(${base64AvatarUpload})`;
+           
+          alert("Photo de profil mise à jour avec succès !");
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+ 
+    async function saveSettingsProfile() {
+      const newName = document.getElementById('settingsDisplayName').value.trim();
+      const newUserTag = document.getElementById('settingsUserTag').value.trim().toLowerCase();
+      const newBio = document.getElementById('settingsBio').value.trim();
+      if (!newName || !newUserTag) return alert("Le nom et le nom d'utilisateur sont requis.");
+       
+      await db.collection('users').doc(myProfile.uid).update({ 
+        displayName: newName, 
+        usertag: newUserTag, 
+        bio: newBio 
+      });
+      myProfile.displayName = newName; 
+      myProfile.usertag = newUserTag;
+      myProfile.bio = newBio;
+      alert("Profil mis à jour !");
+    }
+ 
+    async function saveSettingsPass() {
+      const newPass = document.getElementById('settingsPass').value;
+      if (!newPass) return;
+      try { await currentUser.updatePassword(newPass); alert("Mot de passe modifié !"); } catch(e) { alert("Erreur : " + e.message); }
+    }
+ 
+    async function deleteAccountWithRecovery() {
+      const confirmDelete = confirm("Es-tu sûr de vouloir partir ? 😢\n\nTon compte sera désactivé mais pourra être récupéré en te re-connectant dans un délai de 10 jours.");
+      if (confirmDelete) {
+        const recoverUntil = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
+        await db.collection('users').doc(myProfile.uid).update({
+          scheduledForDeletion: recoverUntil
+        });
+        alert("Votre compte a été désactivé. Connectez-vous d'ici 10 jours pour le restaurer.");
+        logout();
+      }
+    }
+ 
+    function updateChatBgFile(event) {
+      const file = event.target.files[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+              const b64 = e.target.result;
+              localStorage.setItem('sharow_wallpaper', b64);
+              applyWallpaperStyle(b64);
+              alert("Arrière-plan appliqué !");
+          };
+          reader.readAsDataURL(file);
+      }
+    }
+     
+    function resetChatBg() {
+        localStorage.removeItem('sharow_wallpaper');
+        const viewport = document.getElementById('messagesViewport');
+        viewport.style.backgroundImage = 'none'; 
+        viewport.style.backgroundColor = 'transparent';
+        alert("Arrière-plan réinitialisé !");
+    }
+ 
+    function applyWallpaperStyle(val) {
+      const viewport = document.getElementById('messagesViewport');
+      if (val.startsWith('http') || val.startsWith('data:')) {
+        viewport.style.backgroundImage = `url(${val})`; 
+        viewport.style.backgroundColor = 'transparent';
+      }
+    }
+ 
+    async function calculateShadowScore() {
+      const snap = await db.collection('xplore').where('authorUid', '==', myProfile.uid).get();
+      let totalReactions = 0;
+      snap.forEach(doc => {
+        const data = doc.data();
+        if (data.likes) totalReactions += data.likes.length;
+      });
+      document.getElementById('settingsShadowScore').innerText = totalReactions;
+    }
+ 
+    function openProfileModal() {
+      document.getElementById('modalDisplayName').innerText = myProfile.displayName;
+      document.getElementById('modalUserTag').innerText = `@${myProfile.usertag}`;
+      const av = document.getElementById('modalAvatarPreview');
+      if (myProfile.photoURL) { av.innerText = ''; av.style.backgroundImage = `url(${myProfile.photoURL})`; }
+      else { av.style.backgroundImage = ''; av.innerText = myProfile.displayName.charAt(0).toUpperCase(); }
+       
+      loadUserReposts();
+      document.getElementById('profileModal').classList.remove('hidden');
+    }
+    function closeProfileModal() { document.getElementById('profileModal').classList.add('hidden'); }
+    function logout() { auth.signOut().then(() => window.location.reload()); }
+ 
+    function openXplorePostModal() { 
+      document.getElementById('xplorePostModal').classList.remove('hidden'); 
+      document.getElementById('xploreInputText').value = ''; 
+      document.getElementById('xploreCounter').innerText = '0/280';
+      document.getElementById('xploreMediaFile').value = '';
+      document.getElementById('xplorePrivateMode').checked = false;
+    }
+     
+    function closeXplorePostModal() { 
+      setTimeout(() => {
+        document.getElementById('xplorePostModal').classList.add('hidden'); 
+      }, 50);
+    }
+     
+    async function publishXplorePost() {
+      const now = Date.now();
+      if (now - lastPostTime < 3000) {
+        return alert("Veuillez patienter 3 secondes entre chaque publication (Anti-spam).");
+      }
+ 
+      const text = document.getElementById('xploreInputText').value.trim();
+      const isPrivate = document.getElementById('xplorePrivateMode').checked;
+      const mediaInput = document.getElementById('xploreMediaFile');
+       
+      if (!text && mediaInput.files.length === 0) return;
+ 
+      let mediaUrl = "";
+      if (mediaInput.files.length > 0) {
+        const file = mediaInput.files[0];
+        mediaUrl = await new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.readAsDataURL(file);
+        });
+      }
+ 
+      await db.collection('xplore').add({ 
+          authorUid: myProfile.uid,
+          authorName: myProfile.displayName, 
+          authorTag: myProfile.usertag, 
+          authorPhoto: myProfile.photoURL || "", 
+          text, 
+          mediaUrl,
+          isPrivate,
+          likes: [],
+          reposts: [],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+      });
+ 
+      lastPostTime = now;
+      closeXplorePostModal();
+    }
+ 
+    function loadXploreFeed() {
+      if (unsubscribeXploreFeed) unsubscribeXploreFeed();
+      unsubscribeXploreFeed = db.collection('xplore').orderBy('createdAt', 'desc').onSnapshot(snap => {
+        const feed = document.getElementById('xploreFeedContainer');
+        feed.innerHTML = '';
+        snap.forEach(doc => {
+          const item = doc.data(), docId = doc.id;
+          if (item.isPrivate && item.authorUid !== myProfile.uid) return;
+          const isAuthor = item.authorUid === myProfile.uid;
+          const hasLiked = item.likes && item.likes.includes(myProfile.uid);
+          const likeCount = item.likes ? item.likes.length : 0;
+          const repostCount = item.reposts ? item.reposts.length : 0;
+          const card = document.createElement('div');
+          card.className = 'xplore-card glass';
+ 
+          const avatarHtml = item.authorPhoto
+            ? `<div class="avatar-box" style="width:36px; height:36px; background-image:url(${item.authorPhoto})"></div>`
+            : `<div class="avatar-box" style="width:36px; height:36px;">${(item.authorName || item.authorTag || '?').charAt(0).toUpperCase()}</div>`;
+          const safeText = linkify(escapeHtml(item.text || ''));
+          const mediaHtml = item.mediaUrl ? `<img src="${item.mediaUrl}" class="chat-media-img" style="max-width:100%; margin-top:6px;">` : '';
+          const repostBadge = item.isRepost ? `<div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:4px;"><i data-lucide="repeat" style="width:12px;"></i> Reposté par @${escapeHtml(item.repostedByTag || '')}</div>` : '';
+ 
+          card.innerHTML = `
+            ${repostBadge}
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              ${avatarHtml}
+              <div style="flex:1;">
+                <div class="xplore-post-header">
+                  <div>
+                    <span style="font-weight:700; font-size:0.9rem;">${escapeHtml(item.authorName || item.authorTag || 'Utilisateur')}</span>
+                    <span style="color:var(--text-muted); font-size:0.85rem; margin-left:4px;">@${escapeHtml(item.authorTag || '')}</span>
+                    ${item.isPrivate ? '<span style="font-size:0.7rem; background:var(--surface-hover); padding:2px 5px; border-radius:4px; margin-left:4px;">Privé</span>' : ''}
+                    <span class="xplore-post-time">${formatDateTime(item.createdAt)}</span>
+                  </div>
+                  ${isAuthor ? `<button class="xplore-action-btn" onclick="deleteXplorePost('${docId}')" style="color:var(--text-muted);"><i data-lucide="trash-2" style="width:14px;"></i></button>` : ''}
+                </div>
+                <div style="font-size:0.9rem; line-height:1.4;">${safeText}</div>
+                ${mediaHtml}
+                <div class="xplore-post-actions">
+                  <button class="xplore-action-btn ${hasLiked ? 'liked' : ''}" onclick="toggleLikePost('${docId}', ${hasLiked})">
+                    <i data-lucide="heart" style="width:16px; fill:${hasLiked ? 'var(--danger)' : 'none'}"></i> ${likeCount}
+                  </button>
+                  <button class="xplore-action-btn" onclick="repostPost('${docId}', '${escapeHtml(item.text || '').replace(/'/g, "\\'")}', '${escapeHtml(item.authorTag || '').replace(/'/g, "\\'")}')">
+                    <i data-lucide="repeat" style="width:16px;"></i> ${repostCount}
+                  </button>
+                  <button class="xplore-action-btn" onclick="toggleRepliesSection('${docId}')">
+                    <i data-lucide="message-circle" style="width:16px;"></i> Répondre
+                  </button>
+                </div>
+                <div id="replies-${docId}" class="xplore-replies-container hidden">
+                  <div id="repliesList-${docId}"></div>
+                  <div style="display:flex; gap:6px; margin-top:6px;">
+                    <input type="text" id="replyInput-${docId}" class="input-field" placeholder="Écrire une réponse..." style="margin:0; font-size:0.78rem;">
+                    <button class="btn btn-primary" style="width:auto; padding:0 10px;" onclick="sendXploreReply('${docId}')"><i data-lucide="send" style="width:13px;"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+          feed.appendChild(card);
+        });
+        lucide.createIcons();
+        calculateShadowScore();
+      });
+    }
+ 
+    function toggleRepliesSection(docId) {
+      const sec = document.getElementById(`replies-${docId}`);
+      sec.classList.toggle('hidden');
+      if (!sec.classList.contains('hidden')) {
+        loadXploreReplies(docId);
+      }
+    }
+ 
+    function loadXploreReplies(docId) {
+      db.collection('xplore').doc(docId).collection('replies').orderBy('createdAt', 'asc').onSnapshot(snap => {
+        const container = document.getElementById(`repliesList-${docId}`);
+        if (!container) return;
+        container.innerHTML = '';
+        snap.forEach(rDoc => {
+          const r = rDoc.data();
+          const div = document.createElement('div');
+          div.className = 'reply-item glass';
+          const avatar = r.authorPhoto
+            ? `<div class="avatar-box" style="width:30px;height:30px;background-image:url(${r.authorPhoto});"></div>`
+            : `<div class="avatar-box" style="width:30px;height:30px;">${(r.authorName || r.authorTag || '?').charAt(0).toUpperCase()}</div>`;
+          div.innerHTML = `
+            ${avatar}
+            <div class="reply-body">
+              <div class="reply-header">
+                <strong style="font-size:0.8rem;">${escapeHtml(r.authorName || r.authorTag || 'Utilisateur')}</strong>
+                <span style="color:var(--text-muted);font-size:0.72rem;">@${escapeHtml(r.authorTag || '')}</span>
+              </div>
+              <div class="reply-text">${linkify(escapeHtml(r.text || ''))}</div>
+              <span class="reply-time">${formatDateTime(r.createdAt)}</span>
+            </div>`;
+          container.appendChild(div);
+        });
+        lucide.createIcons();
+      });
+    }
+ 
+    async function sendXploreReply(docId) {
+      const input = document.getElementById(`replyInput-${docId}`);
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+ 
+      await db.collection('xplore').doc(docId).collection('replies').add({
+        authorUid: myProfile.uid,
+        authorName: myProfile.displayName,
+        authorTag: myProfile.usertag,
+        authorPhoto: myProfile.photoURL || "",
+        text: text,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+ 
+    async function deleteXplorePost(docId) {
+        if(confirm("Supprimer ce post ?")) {
+            await db.collection('xplore').doc(docId).delete();
+        }
+    }
+ 
+    async function toggleLikePost(docId, hasLiked) {
+        const postRef = db.collection('xplore').doc(docId);
+        if(hasLiked) {
+            await postRef.update({ likes: firebase.firestore.FieldValue.arrayRemove(myProfile.uid) });
+        } else {
+            await postRef.update({ likes: firebase.firestore.FieldValue.arrayUnion(myProfile.uid) });
+        }
+    }
+ 
+    async function repostPost(docId, text, authorTag) {
+      const postRef = db.collection('xplore').doc(docId);
+      await postRef.update({ reposts: firebase.firestore.FieldValue.arrayUnion(myProfile.uid) });
+       
+      await db.collection('xplore').add({
+        authorUid: myProfile.uid,
+        authorName: myProfile.displayName,
+        authorTag: myProfile.usertag,
+        authorPhoto: myProfile.photoURL || "",
+        text: text,
+        isRepost: true,
+        repostedByTag: myProfile.usertag,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+ 
+      await db.collection('users').doc(myProfile.uid).collection('reposts').add({
+        originalPostId: docId,
+        repostedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+ 
+      alert("Post reposté avec succès sur Xplore !");
+    }
+ 
+    async function loadUserReposts() {
+      const container = document.getElementById('modalUserRepostsContainer');
+      container.innerHTML = 'Chargement...';
+      const snap = await db.collection('users').doc(myProfile.uid).collection('reposts').get();
+      if (snap.empty) {
+        container.innerHTML = '<p style="color:var(--text-muted);">Aucun repost pour le moment.</p>';
+        return;
+      }
+      container.innerHTML = '';
+      snap.forEach(async docRef => {
+        const data = docRef.data();
+        const postDoc = await db.collection('xplore').doc(data.originalPostId).get();
+        if(postDoc.exists) {
+          const post = postDoc.data();
+          const miniCard = document.createElement('div');
+          miniCard.className = 'glass';
+          miniCard.style.padding = '6px';
+          miniCard.style.marginBottom = '4px';
+          miniCard.style.borderRadius = '6px';
+          miniCard.innerHTML = `<span style="font-weight:600; font-size:0.78rem;">@${escapeHtml(post.authorTag)}</span>: <p style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(post.text)}</p>`;
+          container.appendChild(miniCard);
+        }
+      });
+    }
+ 
+    function escapeHtml(text) { if (!text) return ""; return text.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">"); }
+  </script>
+ 
+<iframe ng-non-bindable="" frameborder="0" hspace="0" marginheight="0" marginwidth="0" scrolling="no" tabindex="-1" vspace="0" width="100%" aria-hidden="true" id="I0_1788117189028" name="I0_1788117189028" src="" style="position: absolute; top: -100px; width: 1px; height: 1px;"></iframe></body></html>
+
+ 
